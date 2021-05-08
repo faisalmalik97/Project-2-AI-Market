@@ -7,13 +7,12 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, redirect
 
 
 #################################################
 # Database Setup
 #################################################
-#engine = create_engine("sqlite:///hawaii.sqlite")
 #  create database connection
 connection_string = "postgres:nopass97@localhost:5432/Project"
 engine = create_engine(f'postgresql://{connection_string}')
@@ -22,13 +21,6 @@ engine = create_engine(f'postgresql://{connection_string}')
 Base = automap_base()
 # reflect the tables
 Base.prepare(engine, reflect=True)
-
-# Save references to each table
-# AIDB = Base.classes.aidb
-# TCD = Base.classes.tech_companies_deals
-# AICD = Base.classes.ai_companies_deals
-
-
 #################################################
 # Flask Setup
 #################################################
@@ -44,169 +36,131 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/names<br/>"
-        f"/api/v1.0/passengers"
+        f"/api/v1.0/AIDB<br/>"
+        f"/api/v1.0/AID<br/>"
+        f"/api/v1.0/TD<br/>"
+        f"/api/v1.0/AID_Company<br/>"
+        f"/api/v1.0/AID_Deal<br/>"
+        f"/api/v1.0/AID_Capital<br/>"
+        f"/api/v1.0/AID_Rev<br/>"
+        f"/api/v1.0/TD_Company<br/>"
+        f"/api/v1.0/TD_Deal<br/>"
+        f"/api/v1.0/TD_Capital<br/>"
+        f"/api/v1.0/TD_Rev<br/>"
     )
 
 
-@app.route("/api/v1.0/names")
-def names():
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+@app.route("/api/v1.0/AIDB")
+def AIDB():
+    """Return a AI datbase"""
+    # Query the databse
+    AIDB_J = pd.read_sql('SELECT * FROM "AIDB"',engine).to_dict('record')
+    return jsonify(AIDB_J)
 
-    """Return a list of all passenger names"""
-    # Query all passengers
-    results = session.query(aidb.name).all()
+@app.route("/api/v1.0/AID")
+def AID():
 
-    session.close()
+    """Return a AI companies deals"""
+    # Query the databse
+    AID_J = pd.read_sql('SELECT * FROM "AI_Companies_Deals"',engine).to_dict('record')
+    return jsonify(AID_J)
 
-    # Convert list of tuples into normal list
-    all_names = list(np.ravel(results))
+@app.route("/api/v1.0/TD")
+def TD():
 
-    return jsonify(all_names)
+    """Return a Tech companies deals"""
+    # Query the databse
+    TD_J = pd.read_sql('SELECT * FROM "Tech_Companies_Deals"',engine).to_dict('record')
+    return jsonify(TD_J)
 
+@app.route("/api/v1.0/AID_Company")
+def AID_Company():
 
-# @app.route("/api/v1.0/passengers")
-# def passengers():
-#     # Create our session (link) from Python to the DB
+    """Return a AI deals wrt companies"""
+    # Query the databse
+    AID_Company_J = pd.read_sql('SELECT * FROM "AICD_Company"',engine).to_dict('record')
+    return jsonify(AID_Company_J)
+
+@app.route("/api/v1.0/AID_Deal")
+def AID_Deal():
+
+    """Return a AI deals wrt no of deals"""
+    # Query the databse
+    AID_Deal_J = pd.read_sql('SELECT * FROM "AICD_Deals"',engine).to_dict('record')
+    return jsonify(AID_Deal_J)
+
+@app.route("/api/v1.0/AID_Capital")
+def AID_Captial():
+
+    """Return a AI deals wrt capital"""
+    # Query the databse
+    AID_Capital_J = pd.read_sql('SELECT * FROM "AICD_Capital"',engine).to_dict('record')
+    return jsonify(AID_Capital_J)
+
+@app.route("/api/v1.0/AID_Rev")
+def AID_Rev():
+
+    """Return a AI deals wrt revenue"""
+    # Query the databse
+    AID_Rev_J = pd.read_sql('SELECT * FROM "AICD_Revenue"',engine).to_dict('record')
+    return jsonify(AID_Rev_J)
+
+@app.route("/api/v1.0/TD_Company")
+def TD_Company():
+
+    """Return a TECH deals wrt companies"""
+    # Query the databse
+    TD_Company_J = pd.read_sql('SELECT * FROM "TCD_Company"',engine).to_dict('record')
+    return jsonify(TD_Company_J)
+
+@app.route("/api/v1.0/TD_Deal")
+def TD_Deal():
+
+    """Return a TECH deals wrt no of deals"""
+    # Query the databse
+    TD_Deal_J = pd.read_sql('SELECT * FROM "TCD_Deals"',engine).to_dict('record')
+    return jsonify(TD_Deal_J)
+
+@app.route("/api/v1.0/TD_Capital")
+def TD_Captial():
+
+    """Return a TECH deals wrt capital"""
+    # Query the databse
+    TD_Capital_J = pd.read_sql('SELECT * FROM "TCD_Capital"',engine).to_dict('record')
+    return jsonify(TD_Capital_J)
+
+@app.route("/api/v1.0/TD_Rev")
+def TD_Rev():
+
+    """Return a TECH deals wrt revenue"""
+    # Query the databse
+    TD_Rev_J = pd.read_sql('SELECT * FROM "TCD_Revenue"',engine).to_dict('record')
+    return jsonify(TD_Rev_J)
+
+# @app.route("/api/v1.0/AIDB_Cats")
+# def AIDB_Cats():
+
+# #     # Create our session (link) from Python to the DB
 #     session = Session(engine)
 
-#     """Return a list of passenger data including the name, age, and sex of each passenger"""
-#     # Query all passengers
-#     results = session.query(Passenger.name, Passenger.age, Passenger.sex).all()
+# #     
+# #     # Query db
+#     results = session.query("AIDB".Category,"AIDB".Name, "AIDB".Country).all()
 
 #     session.close()
 
-#     # Create a dictionary from the row data and append to a list of all_passengers
-#     all_passengers = []
-#     for name, age, sex in results:
-#         passenger_dict = {}
-#         passenger_dict["name"] = name
-#         passenger_dict["age"] = age
-#         passenger_dict["sex"] = sex
-#         all_passengers.append(passenger_dict)
+#     # Create a dictionary from the row data and append to a list 
+#     all_AIDB_Cat = []
+#     for Category, Name, Country in results:
+#         AIDB_Cat_dict = {}
+#         AIDB_Cat_dict["Category"] = Category
+#         AIDB_Cat_dict["Name"] = Name
+#         AIDB_Cat_dict["Country"] = Country
+#         all_AIDB_Cat.append(AIDB_Cat_dict)
 
-#     return jsonify(all_passengers)
-
+#     return jsonify(all_AIDB_Cat)
 
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-
-
-######################################################################
-
-# # Create our session (link) from Python to the DB
-# session = Session(engine)
-
-# #################################################
-# # Flask Setup
-# #################################################
-# app = Flask(__name__)
-
-
-
-#################################################
-# Flask Routes
-#################################################
-
-# @app.route("/")
-# def welcome():
-#     return (
-#         f"Welcome to the Hawaii Climate Analysis API!<br/>"
-#         f"Available Routes:<br/>"
-#         f"/api/v1.0/precipitation<br/>"
-#         f"/api/v1.0/stations<br/>"
-#         f"/api/v1.0/tobs<br/>"
-#         f"/api/v1.0/temp/start/end"
-#     )
-
-
-# @app.route("/api/v1.0/precipitation")
-# def precipitation():
-#     """Return the precipitation data for the last year"""
-#     # Calculate the date 1 year ago from last date in database
-#     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-
-#     # Query for the date and precipitation for the last year
-#     precipitation = session.query(Measurement.date, Measurement.prcp).\
-#         filter(Measurement.date >= prev_year).all()
-
-#     # Dict with date as the key and prcp as the value
-#     precip = {date: prcp for date, prcp in precipitation}
-#     return jsonify(precip)
-
-
-# @app.route("/api/v1.0/stations")
-# def stations():
-#     """Return a list of stations."""
-#     results = session.query(Station.station).all()
-
-#     # Unravel results into a 1D array and convert to a list
-#     stations = list(np.ravel(results))
-#     return jsonify(stations=stations)
-
-
-# @app.route("/api/v1.0/tobs")
-# def temp_monthly():
-#     """Return the temperature observations (tobs) for previous year."""
-#     # Calculate the date 1 year ago from last date in database
-#     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-
-#     # Query the primary station for all tobs from the last year
-#     results = session.query(Measurement.tobs).\
-#         filter(Measurement.station == 'USC00519281').\
-#         filter(Measurement.date >= prev_year).all()
-
-#     # Unravel results into a 1D array and convert to a list
-#     temps = list(np.ravel(results))
-
-#     # Return the results
-#     return jsonify(temps=temps)
-
-
-# @app.route("/api/v1.0/temp/<start>")
-# @app.route("/api/v1.0/temp/<start>/<end>")
-# def stats(start=None, end=None):
-#     """Return TMIN, TAVG, TMAX."""
-
-#     # Select statement
-#     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-
-#     if not end:
-#         # calculate TMIN, TAVG, TMAX for dates greater than start
-#         results = session.query(*sel).\
-#             filter(Measurement.date >= start).all()
-#         # Unravel results into a 1D array and convert to a list
-#         temps = list(np.ravel(results))
-#         return jsonify(temps)
-
-# #     # calculate TMIN, TAVG, TMAX with start and stop
-# #     results = session.query(*sel).\
-# #         filter(Measurement.date >= start).\
-# #         filter(Measurement.date <= end).all()
-# #     # Unravel results into a 1D array and convert to a list
-# #     temps = list(np.ravel(results))
-# #     return jsonify(temps=temps)
-
-
-# # if __name__ == '__main__':
-# #     app.run()
-
-
-#     import numpy as np
-
-# import sqlalchemy
-# from sqlalchemy.ext.automap import automap_base
-# from sqlalchemy.orm import Session
-# from sqlalchemy import create_engine, func
-
-# from flask import Flask, jsonify
-
-
-
-
-# # Save reference to the table
-# Passenger = Base.classes.passenger
 
